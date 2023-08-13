@@ -1,0 +1,122 @@
+---
+slug: heroku-code-H10
+title: Error crash Heroku code H10 
+desc: Heroku H10-App crashedcode d'erreur est généré lorsqu'une application plante sur Heroku. Possibilité de plusieurs causes de cette erreur. Cet error émet un status 503
+date: "2022-04-22"
+author: ygoalen
+tags:
+  - heroku
+  - papertrail
+  - middle
+status: AIM
+timestamp: "Apr 25 13:46:41"
+incident: MIDDLE
+postgres: ''
+---
+
+### Message d'Erreur
+<BoxError
+  content="error code=H10"
+  href="https://my.papertrailapp.com/systems/"
+  error={`2022-04-25T11:46:41.000Z monitor heroku/router at=error code=H10 desc="App crashed" method=GET path="/" host=monitor.herokuapp.com request_id=1937273b-cfdf fwd="108.115.199" dyno= connect= service= status=503 bytes= protocol=https`}
+/>
+
+Un dyno Web en panne ou un délai d'attente de démarrage sur le dyno Web présentera l'erreur [H10 - App crashed](https://devcenter.heroku.com/articles/error-codes#h10-app-crashed).
+
+### Learn More
+- [H10 - App crashed](https://devcenter.heroku.com/articles/error-codes#h10-app-crashed)
+- [503 Service Unavailable](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/503)
+- [dev.to: Causes-of-heroku-h10-app-crashed](https://dev.to/lawrence_eagles/causes-of-heroku-h10-app-crashed-error-and-how-to-solve-them-3jnl)
+- [youtube: Causes of Heroku H10-App Crashed](https://www.youtube.com/watch?v=68iCwSmSIvA)
+
+### Description
+
+Heroku "H10-App crashed code d'erreur" est généré lorsqu'une application plante sur Heroku. Possibilité de plusieurs causes de cette erreur. Cette erreur émet un status 503.
+
+**Possibilités d'erreurs sont:**  
+1. Bug dans procfile  
+Mauvais: web : node index.js  
+Mauvais: web: node index.js  
+correct: web:node index.js  
+
+2. Port dans variable env  
+Une variable environnement PORT dans les settings Heroku provoque cette erreur.
+
+3. Variable environnement manquante  
+Une variable env manquant dans les settings Heroku provoque cette erreur.
+exemple: process.env.SMART_CONTRACT obtient undefined.
+
+4. Script manquant dans package.json  
+```bash
+"scripts": {
+   "start": "node index.js"
+}
+```
+
+Autres possibilités envisagés dans la résolution:  
+5. La mise à jour de tous les packages de package.json.  
+6. L'ajout de la version nodejs dans package.json.  
+7. Redémarrer toutes les dynos.
+
+
+**Revue des possibilités d'erreur applicable à Monitor:**  
+1. Bug dans procfile:  
+Heroku exécute un dyno automatiquement avec le process type "web".
+Celui-ci qui peut se situer dans un fichier Procfile, n'est pas présent dans l'application.
+Mais uniquement dans les configurations de Heroku avec par défaut:
+```txt
+web npm start
+``` 
+
+2. Port dans variable env  
+Dans les configurations de Heroku il n'y a pas de variable d'environnement PORT dans les settings (prod).
+Celle-ci sera définie par Heroku qui expose un port dynamique auquel l'application peut se lier.
+```txt
+app.set('port', process.env.PORT || 5000);
+```
+Heroku utilisera le premier et l'hôte local utilisera le second.
+
+3. Variable env manquante  
+Dans le code il ne semble pas y avoir de variables d'environnement manquante.
+Pour obtenir rapidement les variables .env dans les settings Heroku  lancer la commande:
+```bash
+$ heroku run printenv -a feature-monitor
+```
+Exemple: process.env.INSTALLATION_ID = undefined à cause d'une variable env mal nommé:
+```txt
+INSTALLATIONS_ID=<id>
+```
+
+4. Script manquant  
+Dans package.json le script est présent:
+```bash
+"scripts": {
+  "start": "node index.js"
+}
+```
+
+5. Les dépendances ont été misent à jour il y a 2 à 5 mois pour la dernière fois.
+
+6. Il y a la version node inscrite dans package.json
+```bash
+"engines": {
+  "node": "17.x"
+},
+```
+Une vérification de la version de nodejs peut s'effectuer lors du déploiement via la cli Heroku la en trouvant dans la journalisation voir example:
+```bash
+remote: -----> Installing binaries
+remote:        engines.node (package.json):  17.x
+remote:        engines.npm (package.json):   unspecified (use default)
+remote:
+remote:        Resolving node version 17.x...
+remote:        Downloading and installing node 17.9.0...
+remote:        Using default npm version: 8.5.5
+```
+
+7. Pour relancer efficacement une erreur H10, relancer un redémarrage des dynos lorsque l'application n'emet plus d'erreurs et qui ne comporte pas d'erreur de fonctionnement majeur.  
+
+### Conclusion
+L'erreur H10 est récurrente et elle est présente à chacune des défaillances des providers qui font tomber l'application monitor.  
+
+Il serait intéressant d'appliquer ces quelques modification pour espérer avoir la disparition de l'erreur et une amélioration du service.  

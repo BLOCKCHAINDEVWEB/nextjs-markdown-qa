@@ -1,0 +1,126 @@
+---
+slug: monitor-errors-providers
+title: Erreur requests [Object null prototype]
+desc: Le code d'erreur qui n'est pas explicite au départ correspond à une erreur 500 de l'appel axios sur l'endpoint blockscout pour une demande de l'abi du smart contract.
+date: "2022-06-21"
+author: ygoalen
+tags:
+  - monitor
+  - heroku
+  - papertrail
+  - middle
+status: AIM
+timestamp: "Jun 21 00:05:35"
+incident: MIDDLE
+postgres: ""
+---
+
+### Message d'Erreur
+Le message d'erreur incompréhensible:
+<BoxError
+  content="requests [Object null prototype]"
+  href="https://my.papertrailapp.com/systems/monitor/events?focus=&selected="
+  error={`2022-06-21T07:05:35.000Z monitor app/web.1             requests: [Object: null prototype] {},
+  2022-06-21T07:05:35.000Z monitor app/web.1             sockets: [Object: null prototype],
+  2022-06-21T07:05:35.000Z monitor app/web.1             freeSockets: [Object: null prototype] {},
+  2022-06-21T07:05:35.000Z monitor app/web.1             keepAliveMsecs: 1000,
+  2022-06-21T07:05:35.000Z monitor app/web.1             maxSockets: Infinity,
+  2022-06-21T07:05:35.000Z monitor app/web.1             maxFreeSockets: 256,
+  2022-06-21T07:05:35.000Z monitor app/web.1             scheduling: 'lifo',
+  2022-06-21T07:05:35.000Z monitor app/web.1             maxTotalSockets: Infinity,
+  2022-06-21T07:05:35.000Z monitor app/web.1             totalSocketCount: 1,
+  2022-06-21T07:05:35.000Z monitor app/web.1             maxCachedSessions: 100,
+  2022-06-21T07:05:35.000Z monitor app/web.1             _sessionCache: [Object],
+  2022-06-21T07:05:35.000Z monitor app/web.1             [Symbol(kCapture)]: false
+  2022-06-21T07:05:35.000Z monitor app/web.1           },
+  2022-06-21T07:05:35.000Z monitor app/web.1           host: 'blockscout.com',
+  2022-06-21T07:05:35.000Z monitor app/web.1           servername: 'blockscout.com',
+  2022-06-21T07:05:35.000Z monitor app/web.1           _agentKey: 'blockscout.com:443:::::::::::::::::::::',
+  2022-06-21T07:05:35.000Z monitor app/web.1           encoding: null,
+  2022-06-21T07:05:35.000Z monitor app/web.1           singleUse: true
+  2022-06-21T07:05:35.000Z monitor app/web.1         },
+  2022-06-21T07:05:35.000Z monitor app/web.1         [Symbol(RequestTimeout)]: undefined
+  2022-06-21T07:05:35.000Z monitor app/web.1       },
+  ...
+  2022-06-21T07:05:35.000Z monitor app/web.1           _events: [Object: null prototype] {
+  2022-06-21T07:05:35.000Z monitor app/web.1             close: [Array],
+  2022-06-21T07:05:35.000Z monitor app/web.1             end: [Function: onReadableStreamEnd],
+  2022-06-21T07:05:35.000Z monitor app/web.1             newListener: [Function: keylogNewListener],
+  2022-06-21T07:05:35.000Z monitor app/web.1             secure: [Function: onConnectSecure],
+  2022-06-21T07:05:35.000Z monitor app/web.1             session: [Function (anonymous)],
+  2022-06-21T07:05:35.000Z monitor app/web.1             free: [Function: onFree],
+  2022-06-21T07:05:35.000Z monitor app/web.1             timeout: [Function: onTimeout],
+  2022-06-21T07:05:35.000Z monitor app/web.1             agentRemo
+  2022-06-21T07:05:35.000Z monitor heroku/web.1 State changed from up to crashed
+  `}
+/>
+
+Le message d'erreur dans l'erreur:
+<BoxError
+  content="response 500 'Internal Server Error'"
+  href="https://my.papertrailapp.com/systems/monitor/events?focus=1475799050759598080&selected=1475799050759598080"
+  error={`2022-06-21T07:05:35.000Z monitor app/web.1   response: {
+  2022-06-21T07:05:35.000Z monitor app/web.1     status: 500,
+  2022-06-21T07:05:35.000Z monitor app/web.1     statusText: 'Internal Server Error',
+  2022-06-21T07:05:35.000Z monitor app/web.1     headers: {
+  2022-06-21T07:05:35.000Z monitor app/web.1       date: 'Tue, 21 Jun 2022 07:05:35 GMT',
+  2022-06-21T07:05:35.000Z monitor app/web.1       'content-type': 'text/html',
+  ...
+  2022-06-21T07:05:35.000Z monitor app/web.1       method: 'get',
+  2022-06-21T07:05:35.000Z monitor app/web.1       url: 'https://blockscout.com/mainnet/api?module=contract&action=getabi&address=',
+  2022-06-21T07:05:35.000Z monitor app/web.1       data: undefined
+  2022-06-21T07:05:35.000Z monitor app/web.1     },
+  `}
+/>
+
+Le message précédent l'erreur:
+- [Connection terminated unexpectedly](https://markdown-qa.vercel.app/post/pg-error-connection)
+
+Le message suivant l'erreur:
+- [error code=H10](https://markdown-qa.vercel.app/post/heroku-code-H10)
+
+### Description
+Le code d'erreur qui n'est pas explicite au départ correspond à une erreur 500 de l'appel axios sur l'endpoint blockscout.com pour une demande de l'abi du smart contract Feature sur xDAI.
+
+1. context  
+
+Pour cette article, je ne dispose pas des accès aux journaux des monitors et de la base de données Clever Cloud.
+
+Un monitor a été déployé sur Clever Cloud pour subvenir à la défaillance du monitor Heroku avec des providers différents: quiknode & ankr.
+
+Les mots clés succeptibles d'intérpréter la provenance de l'erreur:
+- host: 'blockscout.com'
+- responseUrl: 'https://blockscout.com/mainnet/api?module=contract&action=getabi&address='
+- path: '/mainnet/api?module=contract&action=getabi&address=',
+- hostname: 'blockscout.com',
+
+Il y a toutefois une response 500 sur la demande de l'abi du smart-contract Feature sur xDAI qui retourne: data: undefined.
+
+Après vérification le endpoint est fiable: 
+```txt
+https://blockscout.com/mainnet/api?module=contract&action=getabi&address=
+```
+
+2. comportements des erreurs  
+
+L'erreur est un object UI est partiel de 500 lignes environ et elle est mal définie parce qu'elle est un object ni ne commence ni ne fini.
+
+Sa longueur de +500 lignes ne se termine pas comme une erreur mais avec une erreur de type [error code=H10](https://markdown-qa.vercel.app/post/heroku-code-H10).
+
+L'erreur précédente aurait pu être à l'origine d'une série d'erreur en cascade, voir [Connection terminated unexpectedly](https://markdown-qa.vercel.app/post/pg-error-connection).
+
+3. résolutions  
+
+La [PR](https://github.com/feature-sh/) qui a été merge aurait pu corriger le problème mais la CI ou mise à jour du code dans Heroku est encore manuel (CHeroku CLI) en raison de rétablissement récente de l'implémentation Github.
+
+Le comportement du monitor de Clever Cloud pour palier aux besoins de retour des events en cas de defaillance de Heroku et vice-versa devra être éprouvé pour connaître l'efficacité de cette redondance.
+
+Une refonte du socket du monitor est nécessaire pour mieux gérer les erreurs de sockets.
+
+
+### Conclusion
+Les erreurs de providers ne sont pas correctements traités par notre socket actuels.
+
+Suivant le type d'erreur et la fréquence de ces erreurs, le process peut déclencher une erreur code=H10 qui nécessite de relancer les dyno depuis l'UI de Heroku.
+
+Sinon la relance automatique peut être variable et il faut s'attendre à une heure pendant le temps où le monitor ne renvoi pas les events dans les issues Github.

@@ -1,0 +1,62 @@
+---
+slug: monitor-ipfs-504
+title: Erreur serveur 504 Gateway Timeout 
+desc: Le code de réponse HTTP d'erreur serveur 504 Gateway Timeout indique que le serveur, agissant comme passerelle ou proxy, n'a pas obtenu de réponse à temps de la part d'un serveur situé en amont pour la complétion de la requête.
+date: "2022-04-22"
+author: ygoalen
+tags:
+  - bot
+  - monitor
+  - dapp
+  - papertrail
+  - high
+status: WIP
+timestamp: "Apr 20 11:26:16"
+incident: HIGH
+postgres: FATAL
+---
+
+### Message d'Erreur
+<BoxError
+  content="unsupported frontend protocol"
+  href="https://my.papertrailapp.com/groups/29702621/events?focus=&selected="
+  error={`2022-04-20T09:26:16.000Z monitor app/web.1 Error while getting data from Ipfs with Infura: Error: Request failed with status code 504`}
+/>
+
+### Learn More
+- [504 Gateway Timeout](https://developer.mozilla.org/fr/docs/Web/HTTP/Status/504)
+- [Promise.any()](https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/Promise/any)
+
+### Description
+1. Le code de réponse HTTP d'erreur serveur 504 Gateway Timeout indique que le serveur, agissant comme passerelle ou proxy, n'a pas obtenu de réponse à temps de la part d'un serveur situé en amont pour la complétion de la requête.
+
+Avec un utilisation d'une passerelle ou d'un SDK, Infura ou Pinata, pour accéder à Ipfs, les demandes n'aboutissent pas dans les délais de prise en charge du serveur.
+
+L'erreur 504 ne permetra pas d'obtenir de données.
+
+2. A la création des données dans ipfs avec l'obtention d'un hash ou lors d'un remplacement de l'uri en base de données comme mise à jour, cette erreur fait perdre le déroulement normal des applications dans son ensemble.
+
+Bien que les transactions soient transmises, les données en base de données sont soit manquantes ou soit eronnées.
+
+3. Les réponses 504 des serveurs sont temporaires avec des durées d'indisponibilités qui ne sont ni permanent ni prévisible. TODO: Les taux limites d'utilisation
+
+4. Demandes simultanées avec la même uri peut être la cause d'une erreur 504.
+
+5. La promise any (mis en place à une date antérieure) n'a pas résolue cette erreur 504. L'intérprétation de la réponse du serveur ipfs, une function[Error], a été d'obtenir le contenu de l'erreur dans une chaine de caractère à la place d'un hash attendu.
+
+### Conclusion
+Une amélioration du code est requis pour permettre la gestion de cette erreur.
+
+1. Réaliser le code de la promise.any() pour qu'elle puisse prendre l'erreur 504tout en permettant l'utilisation d'une seconde passerelle disponible à l'utilisation.
+
+2. Envisager que le cas de figure lorsque toutes les passerelles disponibles à l'utilisation renvoi une erreur et donc ne permettent plus d'obtenir de données.
+
+### Résolution
+1. Réaliser une issue dans Dapp pour l'amélioration de promise.any().
+
+2. Réaliser un fallback de la base de données pour dans le cas de repsonse ipfs défaillante.
+
+### Avancement
+Résolues:
+- [] refacto promise.any() pour le callback ipfs.
+- [x] Fallback db dans Dapp.

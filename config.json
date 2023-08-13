@@ -1,0 +1,14 @@
+{
+  "base_url": "https://github.com/BLOCKCHAINDEVWEB",
+  "site_title": "Next.js logs",
+  "site_description": "Next.js logs from Heroku",
+  "site_keywords": [
+    {
+      "keyword": "Next.js"
+    }
+  ],
+  "posts_per_page": 10,
+  "email_account": "blockchaindevweb@gmail.com",
+  "linkedin_account": "y-goalen",
+  "github_account": "BLOCKCHAINDEVWEB"
+}

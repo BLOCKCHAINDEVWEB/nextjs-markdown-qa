@@ -1,0 +1,130 @@
+---
+slug: pg-error-connection
+title: Problème de connexion avec postgres 
+desc: Problème de connection avec la base de données de production hébergé sur Clever Cloud pour les applications hébergés dans Heroku.
+date: "2022-06-01"
+author: ygoalen
+tags:
+  - postgres
+  - papertrail
+  - low
+status: AIM
+timestamp: "May 31 21:38:32"
+incident: LOW
+postgres: ERROR
+---
+
+### Message d'Erreur Bot
+<BoxError
+  content="Connection terminated unexpectedly"
+  href="https://my.papertrailapp.com/systems/events?focus=&selected="
+  error={`2022-06-01T04:38:32.000Z bot app/web.1 node:events:505
+  2022-06-01T04:38:32.000Z bot app/web.1       throw er; // Unhandled 'error' event
+  2022-06-01T04:38:32.000Z bot app/web.1       ^
+  2022-06-01T04:38:32.000Z bot app/web.1 Error: Connection terminated unexpectedly
+  2022-06-01T04:38:32.000Z bot app/web.1     at Connection.<anonymous> (/app/node_modules/pg/lib/client.js:132:73)
+  2022-06-01T04:38:32.000Z bot app/web.1     at Object.onceWrapper (node:events:641:28)
+  2022-06-01T04:38:32.000Z bot app/web.1     at Connection.emit (node:events:527:28)
+  2022-06-01T04:38:32.000Z bot app/web.1     at TLSSocket.<anonymous> (/app/node_modules/pg/lib/connection.js:107:12)
+  2022-06-01T04:38:32.000Z bot app/web.1     at TLSSocket.emit (node:events:539:35)
+  2022-06-01T04:38:32.000Z bot app/web.1     at endReadableNT (node:internal/streams/readable:1345:12)
+  2022-06-01T04:38:32.000Z bot app/web.1     at processTicksAndRejections (node:internal/process/task_queues:83:21)
+  2022-06-01T04:38:32.000Z bot app/web.1 Emitted 'error' event on Client instance at:
+  2022-06-01T04:38:32.000Z bot app/web.1     at Client._handleErrorEvent (/app/node_modules/pg/lib/client.js:319:10)
+  2022-06-01T04:38:32.000Z bot app/web.1     at Connection.<anonymous> (/app/node_modules/pg/lib/client.js:149:16)
+  2022-06-01T04:38:32.000Z bot app/web.1     at Object.onceWrapper (node:events:641:28)
+  2022-06-01T04:38:32.000Z bot app/web.1     [... lines matching original stack trace ...]
+  2022-06-01T04:38:32.000Z bot app/web.1     at processTicksAndRejections (node:internal/process/task_queues:83:21)`}
+/>
+
+### Message d'Erreur Monitor
+<BoxError
+  content="Connection terminated unexpectedly"
+  href="https://my.papertrailapp.com/systems/monitor/events?focus=&selected="
+  error={`2022-06-01T05:02:39.000Z monitor app/web.1 node:events:505
+  2022-06-01T05:02:39.000Z monitor app/web.1       throw er; // Unhandled 'error' event
+  2022-06-01T05:02:39.000Z monitor app/web.1       ^
+  2022-06-01T05:02:39.000Z monitor app/web.1 Error: Connection terminated unexpectedly
+  2022-06-01T05:02:39.000Z monitor app/web.1     at Connection.<anonymous> (/app/node_modules/pg/lib/client.js:132:73)
+  2022-06-01T05:02:39.000Z monitor app/web.1     at Object.onceWrapper (node:events:641:28)
+  2022-06-01T05:02:39.000Z monitor app/web.1     at Connection.emit (node:events:527:28)
+  2022-06-01T05:02:39.000Z monitor app/web.1     at TLSSocket.<anonymous> (/app/node_modules/pg/lib/connection.js:107:12)
+  2022-06-01T05:02:39.000Z monitor app/web.1     at TLSSocket.emit (node:events:539:35)
+  2022-06-01T05:02:39.000Z monitor app/web.1     at endReadableNT (node:internal/streams/readable:1345:12)
+  2022-06-01T05:02:39.000Z monitor app/web.1     at processTicksAndRejections (node:internal/process/task_queues:83:21)
+  2022-06-01T05:02:39.000Z monitor app/web.1 Emitted 'error' event on Client instance at:
+  2022-06-01T05:02:39.000Z monitor app/web.1     at Client._handleErrorEvent (/app/node_modules/pg/lib/client.js:319:10)
+  2022-06-01T05:02:39.000Z monitor app/web.1     at Connection.<anonymous> (/app/node_modules/pg/lib/client.js:149:16)
+  2022-06-01T05:02:39.000Z monitor app/web.1     at Object.onceWrapper (node:events:641:28)
+  2022-06-01T05:02:39.000Z monitor app/web.1     [... lines matching original stack trace ...]
+  2022-06-01T05:02:39.000Z monitor app/web.1     at processTicksAndRejections (node:internal/process/task_queues:83:21)`}
+/>
+
+### Apprendre plus
+- [Postgres depuis l'extérieur de Heroku](https://devcenter.heroku.com/articles/connecting-to-heroku-postgres-databases-from-outside-of-heroku)
+- [Serveur de bases de données PostgreSQL](https://docs.postgresql.fr/10/app-postgres.html)
+- [process_exit_codes](https://nodejs.org/api/process.html#process_exit_codes)
+- [brianc/node-postgres/issues/1611](https://github.com/brianc/node-postgres/issues/1611)
+
+### Description
+Problème de connexion avec la base de données de production hébergé sur Clever Cloud pour les applications hébergés sur Heroku.
+
+La configuration actuelle de Postgres sur Heroku pour le base de données Clever Cloud: .
+
+La variable d'environnement DB_URI n'est pas utilisé pour les applications Heroku.
+
+Particularité observée dans les configurations des applications, le port (5432 habituellement) pour l'accès à la base de donnée Postgres est:
+```txt
+POSTGRES_PORT=6158
+```
+
+Aussi les connexions de base de données externes à Heroku ne sont pas reconnues depuis l'environnement d'exécution Heroku CLI.
+```bash
+C:\WINDOWS\system32>heroku pg:info --app monitor
+⬢ monitor has no heroku-postgresql databases.
+```
+
+La base de donnée Clever Cloud est accessibles de n'importe où et elle peut être utilisées à partir de n'importe quelle application utilisant des clients Postgres standard.
+
+Toutes les applications clientes doivent indiquer le même numéro de port. Le port Indique le port TCP/IP sur lequel postgres attend les connexions des applications clientes.
+
+Pour qu'une application cliente puisse accéder à une base de données, elle se connecte à un processus postgres en cours d'exécution. L'instance postgres démarre ensuite un processus serveur séparé pour gérer la connexion.
+
+### Erreur suivante
+<BoxError
+  content="Process exited with status 1"
+  href="https://my.papertrailapp.com/systems/bot/events?focus=&selected="
+  error={`2022-06-01T07:38:53.000Z bot heroku/web.1 Process exited with status 1
+  2022-06-01T07:38:57.000Z bot heroku/web.1 Starting process with command npm start
+  2022-06-01T07:38:59.000Z bot heroku/web.1 State changed from starting to up`}
+/>
+Node.js renverra ce code de sortie, lorsque le programme se termine.
+Une exception non interceptée n'a pas été gérée par un domaine ou un 'uncaughtException'gestionnaire d'événements.
+Le comportement attendu est que ce programme ne finisse jamais.
+
+Le client ne peut pas récupérer automatiquement de cette erreur et doit être redémarré. 
+```txt
+Emitted 'error' event on Client instance at:
+at Client._handleErrorEvent
+at Connection.<anonymous>
+at Object.onceWrapper
+```
+Après le redémarrage, il se reconnectera à la BD sans problème.
+
+Par le fait d'acquérir intentionnement un client sans lui attacher un écouteur d'erreur peut être la cause de l'arrêt du programme. Voir [commentaire node-postgres/issues/1611](https://github.com/brianc/node-postgres/issues/1611#issuecomment-1056103234)
+
+Les écouteurs d'evénements semblent toutefois nécessaire au programme pour la continuité de programme. Mais cela semble ne pas être toujours le cas et ne s'applique que pour pool.connect() et client.connect().
+
+Définisant le [code de connexion](https://github.com/sh/bot/blob/main/db/conf.js) à l'application cliente dans les configurations ainsi:
+1. Dans la librairie "pg",le module "Client" est une connexion statique présente dans la configuration d'accès à la base donnée dans chacune des applications.
+2. Alors que le module "Pool" gère une liste/un pool dynamique d'objets Client, avec une fonctionnalité de reconnexion automatique. Il réduit la latence chaque fois qu'un client peut être réutilisé.
+
+Le module "Client" présent dans le fichier de configuration d'accès à la base de donnée ne semble pas être utilisé dans le bon fonctionnement de l'application.
+
+
+## Conclusion
+Le module "Client" de la librairie "pg" ne gèrer pas l'erreur et provoque l'arrêt du programme node hébergé dans Heroku pour une base de donnée externe, add-on Postgres dans Clever Cloud.
+
+Son retrait permettrait-t-il la levée de cette erreur?
+
+Bien que des paramètres Postgres soit possibles pour le module "Pool", leurs applications sont beaucoup trop spécifiques pour être abordés comme pouvant résoudre directement le problème.
