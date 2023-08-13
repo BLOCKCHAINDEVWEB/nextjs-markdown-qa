@@ -15,7 +15,7 @@
     "next-auth": "^4.3.4",
     "next-mdx-remote": "^4.0.2",
     "normalize.css": "^8.0.1",
-    "npm": "^8.10.0",
+    "npm": "^9.8.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-schemaorg": "^2.0.0",
